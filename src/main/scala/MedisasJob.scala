@@ -3,7 +3,6 @@ import StreamingContext._
 import org.apache.spark.SparkContext._
 import org.apache.spark.streaming.twitter._
 import org.apache.spark.SparkConf
-import org.apache.spark.Logging
 import org.apache.log4j.{Level, Logger}
 
 /*
@@ -49,8 +48,9 @@ object MedisasJob {
     val stream = TwitterUtils.createStream(ssc, None, Seq())
 
     /*
-      1. Filter out Tweets that are not retweets and those marked `possibly_sensitive`.
-        This checks whether `retweeted_status` is not null.
+      1. Filter out Tweets that
+        * Are not retweets. This checks whether `retweeted_status` is not null.
+        * Those marked `possibly_sensitive`
 
       2. Map: Having verified that `retweeted_status` is present for each element in the RDD,
         the key is made to be the parent tweet (that which is being retweeted) and value is scalar 1.
