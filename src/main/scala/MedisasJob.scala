@@ -21,8 +21,7 @@ but instead count the retweets that your program actually processes.
 How to run, for example:
 MedisasJob 5 3600
 
-This accumulates one hour worth of data and runs the job every 5 seconds.
-While not exact, there should not be any overlap in this case.
+This accumulates one hour worth of data and updates the results every five seconds.
  */
 
 object MedisasJob {
