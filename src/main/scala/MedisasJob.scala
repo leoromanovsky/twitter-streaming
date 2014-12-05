@@ -19,9 +19,9 @@ You should not use the retweet_count field,
 but instead count the retweets that your program actually processes.
 
 How to run, for example:
-MedisasJob 60 60
+MedisasJob 5 3600
 
-This accumulates 60 seconds worth of data and runs the job every 60 seconds.
+This accumulates one hour worth of data and runs the job every 5 seconds.
 While not exact, there should not be any overlap in this case.
  */
 
@@ -49,7 +49,8 @@ object MedisasJob {
     val stream = TwitterUtils.createStream(ssc, None, Seq())
 
     /*
-      1. Filter out Tweets that are not retweets. This checks whether `retweeted_status` is not null.
+      1. Filter out Tweets that are not retweets and those marked `possibly_sensitive`.
+        This checks whether `retweeted_status` is not null.
 
       2. Map: Having verified that `retweeted_status` is present for each element in the RDD,
         the key is made to be the parent tweet (that which is being retweeted) and value is scalar 1.
@@ -64,7 +65,9 @@ object MedisasJob {
       5. Sort: Sort by key, which is now the count. False parameter signifies descending order.
      */
     val tweets = stream
-      .filter { case(tweet) => tweet.isRetweet() }
+      .filter { case(tweet) =>
+        tweet.isRetweet() && !tweet.isPossiblySensitive()
+      }
       .map { case(tweet) => (tweet.getRetweetedStatus(), 1) }
       .reduceByKeyAndWindow(_ + _, Seconds(windowLength.toInt))
       .map{ case (tweet, count) => (count, tweet)}
